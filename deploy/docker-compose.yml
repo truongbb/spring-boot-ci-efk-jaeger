@@ -1,0 +1,33 @@
+version: '3.3'
+
+services:
+  spring-ci-service:
+    build:
+      context: ../
+      args:
+        PROJECT_VERSION: ${PROJECT_VERSION}
+        JDK_BASE_IMAGE: ${JDK_BASE_IMAGE}
+    image: "spring-ci-efk:${TAG}"
+    container_name: "spring-ci-efk"
+    network_mode: "host"
+    environment:
+      - 'SPRING_PROFILE_ACTIVE=dev,swagger'
+#      - 'JAEGER_SERVICE_NAME=spring_ci_efk_jaeger'
+#      - 'JAEGER_SAMPLER_TYPE=probabilistic'
+#      - 'JAEGER_SAMPLER_PARAM=1'
+#      - 'JAEGER_AGENT_HOST=192.168.0.103'
+#      - 'JAEGER_AGENT_PORT=5775'
+#      - 'JAEGER_SAMPLER_MANAGER_HOST_PORT=192.168.0.103:5778'
+#      - 'JAEGER_ENDPOINT=http://192.168.0.103:14268/api/traces'
+#      - 'JAEGER_PROPAGATION=jaeger'
+    restart: always
+    ports:
+      - 9000:9000
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: 'spring_ci_efk.efk'

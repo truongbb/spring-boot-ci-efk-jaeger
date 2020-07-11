@@ -1,0 +1,98 @@
+before_script:
+  - 'which ssh-agent || ( yum install -qq openssh-client )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -t rsa 192.168.56.105 >> ~/.ssh/known_hosts
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  - whoami
+  - unset SSH_ASKPASS
+
+variables:
+  QUALITY_GATE: "OK"
+  REPO_PATH: "/home/gitlab-runner/repos"
+  SONAR_SERVER: "http://192.168.3.60:9000/dashboard/"
+  SERVICE_NAME: "spring-ci-efk"
+
+stages:
+  - checkout_code
+  - compile
+  - sonnar_scanner
+  - check_quality_gate
+  - docker_build # merge request only
+  - docker_up # merge request only
+#  - docker_push # merge request only
+
+checkout_code:
+  stage: checkout_code
+  only:
+    - master
+    - merge_request
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - git stash
+    - git pull
+
+compile:
+  stage: compile
+  only:
+    - master
+    - merge_request
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - chmod +x ./build.sh
+    - ./build.sh compile
+
+sonnar_scanner:
+  stage: sonnar_scanner
+  only:
+    - master
+    - merge_requests
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - chmod +x ./build.sh
+    - ./build.sh sonar-scan
+
+check_quality_gate:
+  stage: check_quality_gate
+  only:
+    - master
+    - merge_requests
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - chmod +x ./build.sh
+    - export QUALITY_GATE=$(./build.sh quality-gate)
+    - echo $QUALITY_GATE
+    - echo "Sonar statistic result at --> $SONAR_SERVER?id=$SERVICE_NAME"
+    - sh ./stop_job.sh # force pipeline exit and fail job if QUALITY GATE is FAIL
+
+docker_build:
+  stage: docker_build
+  only:
+    - master
+    - merge_request
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - chmod +x ./build.sh
+    - ./build.sh docker-build
+
+docker_up:
+  stage: docker_up
+  only:
+    - master
+    - merge_request
+  script:
+    - cd "$REPO_PATH/$SERVICE_NAME"
+    - chmod +x ./build.sh
+    - ./build.sh docker-up
+
+#docker_push:
+#  stage: docker_push
+#  only:
+#    #    - master
+#    - merge_request
+#  script:
+#    - cd "$REPO_PATH/$SERVICE_NAME"
+#    - chmod +x ./build.sh
+#    - ./build.sh docker-push
