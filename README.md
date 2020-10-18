@@ -1,1 +1,1 @@
-# spring-boot-ci-efk-jaeger
+# spring-boot-ci-efk-jaeger-sentry
