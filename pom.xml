@@ -8,10 +8,10 @@
         <version>2.1.9.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>vn.com.ntq-solution</groupId>
-    <artifactId>spring-ci-efk</artifactId>
+    <groupId>com.github.truongbb</groupId>
+    <artifactId>spring-ci-efk-jaeger-sentry</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-boot-ci-efk-jaeger</name>
+    <name>spring-boot-ci-efk-jaeger-sentry</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
@@ -46,6 +46,17 @@
             <groupId>io.opentracing.contrib</groupId>
             <artifactId>opentracing-spring-jaeger-web-starter</artifactId>
             <version>2.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-spring</artifactId>
+            <version>1.7.27</version>
+        </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-logback</artifactId>
+            <version>1.7.27</version>
         </dependency>
 
     </dependencies>

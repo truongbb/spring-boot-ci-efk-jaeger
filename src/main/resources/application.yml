@@ -7,7 +7,7 @@ spring:
       base-path: 'api'
 
   application:
-    name: 'spring-ci-efk'
+    name: 'spring-ci-efk-jaeger-sentry'
 
 opentracing:
   jaeger:

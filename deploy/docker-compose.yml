@@ -30,4 +30,4 @@ services:
         fluentd-async-connect: 'true'
         fluentd-retry-wait: '1s'
         fluentd-max-retries: '30'
-        tag: 'spring_ci_efk.efk'
+        tag: 'spring-ci-efk-jaeger-sentry.efk'
